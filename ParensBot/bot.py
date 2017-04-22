@@ -14,6 +14,10 @@ class Bot(object):
     translations = {}
     bot = None
 
+    OPEN = "([{（"
+    CLOSE = ")[}）"
+    MATCH = dict(zip(OPEN, CLOSE))
+
     def __init__(self):
         self.config = configparser.ConfigParser()
         self.config.read(CONFIGFILE_PATH)
@@ -69,9 +73,13 @@ class Bot(object):
             CommandHandler("start", self.command_start))
         self.dispatcher.add_handler(CommandHandler("help", self.command_help))
         self.dispatcher.add_handler(
+            CommandHandler("enable", self.command_enable))
+        self.dispatcher.add_handler(
+            CommandHandler("disable", self.command_disable))
+        self.dispatcher.add_handler(
             MessageHandler(Filters.text, self.command_balacne_parens))
-        #self.dispatcher.addUnknownTelegramCommandHandler(self.command_unknown)
-        #self.dispatcher.addErrorHandler(self.error_handle)
+        # self.dispatcher.addUnknownTelegramCommandHandler(self.command_unknown)
+        # self.dispatcher.addErrorHandler(self.error_handle)
 
     def command_start(self, bot, update):
         self.send_message(bot, update.message.chat,
@@ -84,8 +92,25 @@ class Bot(object):
             /help - Show the command list."""))
 
     def command_balacne_parens(self, bot, update):
-        if update.message.text.endswith('('):
-            self.send_message(bot, update.message.chat, ')')
+        if not self.enabled:
+            return
+        stack = []
+        for c in update.message.text:
+            if c in self.OPEN:
+                stack.push(c)
+            elif c in self.CLOSE and stack[len(stack) - 1] == self.MATCH[c]:
+                stack.pop()
+        reply = "".join(map(lambda x: self.MATCH[x], stack).reversed())
+        if reply != "":
+            self.send_message(bot, update.message.chat, reply)
+
+    def command_enable(self, bot, update):
+        self.enabled = True
+        self.send_message(bot, update.message.chat, "人一輩子的左括號是有限的，誰先用完誰先走（（（（")
+
+    def command_disable(self, bot, update):
+        self.enabled = False
+        self.send_message(bot, update.message.chat, "咁我收聲咯。")
 
     def send_message(self, bot, chat, text):
         try:
