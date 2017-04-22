@@ -14,8 +14,8 @@ class Bot(object):
     translations = {}
     bot = None
 
-    OPEN = "([{（"
-    CLOSE = ")[}）"
+    OPEN = "([{（［｛"
+    CLOSE = ")]}）］｝"
     MATCH = dict(zip(OPEN, CLOSE))
 
     def __init__(self):
