@@ -35,6 +35,8 @@ class Bot(object):
         self.config = configparser.ConfigParser()
         self.config.read(CONFIGFILE_PATH)
 
+        self.enabled = True
+
         self.updater = Updater(token=self.get_env_conf("TOKEN"))
         print(self.get_env_conf("WEBHOOK_URL"))
         self.dispatcher = self.updater.dispatcher
@@ -102,6 +104,8 @@ class Bot(object):
         self.send_message(bot, update.message.chat,
                           _("""Available Commands:
             /start - Iniciciate or Restart the bot
+            /enable - Enable
+            /disalbe - Disable
             /help - Show the command list."""))
 
     def command_balance_parens(self, bot, update):
