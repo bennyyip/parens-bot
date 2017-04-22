@@ -69,13 +69,13 @@ class Bot(object):
             CommandHandler("start", self.command_start))
         self.dispatcher.add_handler(CommandHandler("help", self.command_help))
         self.dispatcher.add_handler(
-            MessageHandler(Filters.text, self.command_echo))
+            MessageHandler(Filters.text, self.command_balacne_parens))
         #self.dispatcher.addUnknownTelegramCommandHandler(self.command_unknown)
         #self.dispatcher.addErrorHandler(self.error_handle)
 
     def command_start(self, bot, update):
         self.send_message(bot, update.message.chat,
-                          _("Welcome to Dungeon World Bot."))
+                          _("Hey man, I'm ParensBot."))
 
     def command_help(self, bot, update):
         self.send_message(bot, update.message.chat,
@@ -83,8 +83,9 @@ class Bot(object):
             /start - Iniciciate or Restart the bot
             /help - Show the command list."""))
 
-    def command_echo(self, bot, update):
-        self.send_message(bot, update.message.chat, update.message.text)
+    def command_balacne_parens(self, bot, update):
+        if update.message.text.endswith('('):
+            self.send_message(bot, update.message.chat, ')')
 
     def send_message(self, bot, chat, text):
         try:
