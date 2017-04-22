@@ -77,7 +77,7 @@ class Bot(object):
         self.dispatcher.add_handler(
             CommandHandler("disable", self.command_disable))
         self.dispatcher.add_handler(
-            MessageHandler(Filters.text, self.command_balacne_parens))
+            MessageHandler(Filters.text, self.command_balance_parens))
         # self.dispatcher.addUnknownTelegramCommandHandler(self.command_unknown)
         # self.dispatcher.addErrorHandler(self.error_handle)
 
@@ -91,16 +91,17 @@ class Bot(object):
             /start - Iniciciate or Restart the bot
             /help - Show the command list."""))
 
-    def command_balacne_parens(self, bot, update):
+    def command_balance_parens(self, bot, update):
         if not self.enabled:
             return
         stack = []
         for c in update.message.text:
             if c in self.OPEN:
-                stack.push(c)
+                stack.append(c)
             elif c in self.CLOSE and stack[len(stack) - 1] == self.MATCH[c]:
                 stack.pop()
-        reply = "".join(map(lambda x: self.MATCH[x], stack).reversed())
+        stack.reverse()
+        reply = "".join(map(lambda x: self.MATCH[x], stack))
         if reply != "":
             self.send_message(bot, update.message.chat, reply)
 
