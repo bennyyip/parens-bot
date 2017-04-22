@@ -9,14 +9,27 @@ CONFIGFILE_PATH = "data/config.cfg"
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("bot_log")
 
+OPEN = "([{（"
+CLOSE = ")]}）"
+MATCH = dict(zip(OPEN, CLOSE))
+
+
+def balance_parens(text):
+    stack = []
+    for c in text:
+        if c in OPEN:
+            stack.append(c)
+        elif len(stack) > 0 and c in CLOSE and MATCH[stack[len(stack) -
+                                                           1]] == c:
+            stack.pop()
+    stack.reverse()
+    reply = "".join(map(lambda x: MATCH[x], stack))
+    return reply
+
 
 class Bot(object):
     translations = {}
     bot = None
-
-    OPEN = "([{（［｛"
-    CLOSE = ")]}）］｝"
-    MATCH = dict(zip(OPEN, CLOSE))
 
     def __init__(self):
         self.config = configparser.ConfigParser()
@@ -92,16 +105,7 @@ class Bot(object):
             /help - Show the command list."""))
 
     def command_balance_parens(self, bot, update):
-        if not self.enabled:
-            return
-        stack = []
-        for c in update.message.text:
-            if c in self.OPEN:
-                stack.append(c)
-            elif c in self.CLOSE and stack[len(stack) - 1] == self.MATCH[c]:
-                stack.pop()
-        stack.reverse()
-        reply = "".join(map(lambda x: self.MATCH[x], stack))
+        reply = balance_parens(update.message.text)
         if reply != "":
             self.send_message(bot, update.message.chat, reply)
 
